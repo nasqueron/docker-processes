@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/client"
 	"log"
 	"os"
+	"strings"
 )
 
 const DockerApiVersion = "1.37"
@@ -66,5 +67,16 @@ func getContainerName(container types.Container) string {
 		return container.ID[:10]
 	}
 
-	return names[0][1:]
+	bestCandidate := names[0][1:]
+
+	// Linked containers offer link names before the container name.
+	if strings.Contains(bestCandidate, "/") {
+		for _, name := range names {
+			if !strings.Contains(name[1:], "/") {
+				return name[1:]
+			}
+		}
+	}
+
+	return bestCandidate
 }
