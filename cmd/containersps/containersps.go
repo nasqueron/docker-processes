@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
+	"devcentral.nasqueron.org/source/docker-processes/pkg/dockerutils"
 	"devcentral.nasqueron.org/source/docker-processes/pkg/process"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"log"
 	"os"
-	"strings"
 )
 
 const DockerApiVersion = "1.37"
@@ -29,7 +29,7 @@ func main() {
 
 	psArgs := []string{"auxw"}
 	for _, container := range containers {
-		name := getContainerName(container)
+		name := dockerutils.GetContainerName(container)
 
 		response, err := dockerClient.ContainerTop(context.Background(), container.ID, psArgs)
 		if err != nil {
@@ -60,23 +60,3 @@ func getProcessLine(containerName string, processInfo process.Process) string {
 		processInfo.VSZ, processInfo.RSS, processInfo.Command)
 }
 
-func getContainerName(container types.Container) string {
-	names := container.Names
-
-	if len(names) == 0 {
-		return container.ID[:10]
-	}
-
-	bestCandidate := names[0][1:]
-
-	// Linked containers offer link names before the container name.
-	if strings.Contains(bestCandidate, "/") {
-		for _, name := range names {
-			if !strings.Contains(name[1:], "/") {
-				return name[1:]
-			}
-		}
-	}
-
-	return bestCandidate
-}
