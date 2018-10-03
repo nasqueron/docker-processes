@@ -59,4 +59,3 @@ func getProcessLine(containerName string, processInfo process.Process) string {
 		containerName, processInfo.User, processInfo.Pid, processInfo.CPU,
 		processInfo.VSZ, processInfo.RSS, processInfo.Command)
 }
-
