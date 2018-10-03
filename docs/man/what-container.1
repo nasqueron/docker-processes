@@ -1,0 +1,65 @@
+.Dd $Mdocdate$
+.Dt WHAT-CONTAINER 1
+.Os Nasqueron
+.Sh NAME
+.Nm what-container
+.Nd decorate your output with container name derived from pid
+.Sh SYNOPSIS
+.Nm
+.Oo
+.Fl p
+.Sm off
+.Ar position
+.Sm on
+.Oc
+.Oo
+.Fl w
+.Sm off
+.Ar width
+.Sm on
+.Oc
+.Nm
+.Fl -append
+.Oo
+.Fl p
+.Sm off
+.Ar position
+.Sm on
+.Oc
+.Sh DESCRIPTION
+The
+.Nm
+utility searches the standard input for lines containing a PID from a processus belonging to a container.
+.Pp
+When a known PID can be found, it adds the relevant container name to the line.
+.Pp
+By default,
+.Nm
+prints the container name before the line, on a 20 spaces column. When no container has been found,
+it left the space blank.
+.Pp
+The following options are available:
+.Bl -tag -width indent
+.It Fl -append
+Append the container name to the line, instead of prepend it.
+.It Fl w Ar width
+Determine the width (in characters) of the container column. By default, a 20 characters width column is used.
+This option is ignored in append mode.
+.It Fl p Ar position
+Force the use of the specified column to lookup the PID. If omitted, PID is searched in the two first columns.
+Position starts at 1 for the first column, like in awk.
+.El
+.Sh ENVIRONMENT
+The
+.Ev LANG , LC_ALL
+and
+.Ev LC_CTYPE
+environment variables affect the execution of
+.Nm
+as described in
+.Xr environ 7 .
+.Pp
+If UTF-8 encoding is detected, and a container name must be truncated, it outputs three dots (…).
+When undetected, it fallbacks to output a plus (+).
+.Sh EXIT STATUS
+.Ex -std
