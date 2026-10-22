@@ -8,15 +8,13 @@ import (
 	"devcentral.nasqueron.org/source/docker-processes/pkg/process"
 	"flag"
 	"fmt"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 )
-
-const DockerApiVersion = "1.37"
 
 type Config struct {
 	Prepend bool
@@ -108,13 +106,13 @@ func isValidFieldPosition(position int, config Config) bool {
 }
 
 func getProcessesMap () map[int64]string {
-	dockerClient, err := client.NewClientWithOpts(client.WithVersion(DockerApiVersion))
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		log.Println("Can't connect to Docker engine.")
 		os.Exit(1)
 	}
 
-	containers, err := dockerClient.ContainerList(context.Background(), types.ContainerListOptions{})
+	containers, err := dockerClient.ContainerList(context.Background(), container.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -122,10 +120,10 @@ func getProcessesMap () map[int64]string {
 	processesMap := make(map[int64]string)
 
 	psArgs := []string{"auxw"}
-	for _, container := range containers {
-		containerName := dockerutils.GetContainerName(container)
+	for _, c := range containers {
+		containerName := dockerutils.GetContainerName(c)
 
-		response, err := dockerClient.ContainerTop(context.Background(), container.ID, psArgs)
+		response, err := dockerClient.ContainerTop(context.Background(), c.ID, psArgs)
 		if err != nil {
 			continue
 		}

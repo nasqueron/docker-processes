@@ -5,22 +5,20 @@ import (
 	"devcentral.nasqueron.org/source/docker-processes/pkg/dockerutils"
 	"devcentral.nasqueron.org/source/docker-processes/pkg/process"
 	"fmt"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"log"
 	"os"
 )
 
-const DockerApiVersion = "1.37"
-
 func main() {
-	dockerClient, err := client.NewClientWithOpts(client.WithVersion(DockerApiVersion))
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		log.Println("Can't connect to Docker engine.")
 		os.Exit(1)
 	}
 
-	containers, err := dockerClient.ContainerList(context.Background(), types.ContainerListOptions{})
+	containers, err := dockerClient.ContainerList(context.Background(), container.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -28,10 +26,10 @@ func main() {
 	fmt.Printf("%s\n", getProcessLineTitle())
 
 	psArgs := []string{"auxw"}
-	for _, container := range containers {
-		name := dockerutils.GetContainerName(container)
+	for _, c := range containers {
+		name := dockerutils.GetContainerName(c)
 
-		response, err := dockerClient.ContainerTop(context.Background(), container.ID, psArgs)
+		response, err := dockerClient.ContainerTop(context.Background(), c.ID, psArgs)
 		if err != nil {
 			continue
 		}

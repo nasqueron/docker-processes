@@ -1,11 +1,11 @@
 package dockerutils
 
 import (
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"strings"
 )
 
-func GetContainerName(container types.Container) string {
+func GetContainerName(container container.Summary) string {
 	names := container.Names
 
 	if len(names) == 0 {
